@@ -6,7 +6,10 @@ This file creates your application.
 """
 
 from app import app
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash 
+from app import mail
+from flask_mail import Message 
+from app.form import ContactForm
 
 
 ###
@@ -22,7 +25,7 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+    return render_template('about.html', name="Dean Morgan")
 
 
 ###
@@ -46,7 +49,20 @@ def add_header(response):
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
-
+@app.route('/contact',methods=['GET','POST'])
+def contact():
+    form=ContactForm()
+    if request.method=='POST':
+        Name=request.form['Name']
+        email=request.form['Email']
+        subject=request.form['subject']
+        text_area=request.form['text_area'] 
+        msg = Message("Your Subject", sender=("dean Morgan","from@example.com"),recipients=["deanmorgan12@gmail.com"])
+        msg.body = 'this works'
+        mail.send(msg) 
+        flash("the message has been sent")
+        return redirect(url_for('home'))
+    return render_template('contact.html',form=form)
 
 @app.errorhandler(404)
 def page_not_found(error):
